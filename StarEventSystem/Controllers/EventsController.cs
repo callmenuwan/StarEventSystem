@@ -13,10 +13,12 @@ namespace StarEventSystem.Controllers
     public class EventsController : Controller
     {
         private readonly StarEventSystemContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public EventsController(StarEventSystemContext context)
+        public EventsController(StarEventSystemContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Events
@@ -54,10 +56,27 @@ namespace StarEventSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventId,EventName,EventDescription,EventType,StartDate,EndDate")] Event @event)
+        public async Task<IActionResult> Create(Event @event, IFormFile ImageFile)
         {
             if (ModelState.IsValid)
             {
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    // Generate unique file name
+                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // Save file
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(fileStream);
+                    }
+
+                    // Save path to database
+                    @event.ImagePath = "/images/" + uniqueFileName;
+                }
+
                 _context.Add(@event);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -86,7 +105,7 @@ namespace StarEventSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,EventName,EventDescription,EventType,StartDate,EndDate")] Event @event)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,EventName,EventDescription,EventType,StartDate,EndDate,Location,TicketPrice,TotalSeats,AvailableSeats,OrganizerId,ImagePath")] Event @event)
         {
             if (id != @event.EventId)
             {
