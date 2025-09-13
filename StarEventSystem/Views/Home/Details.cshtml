@@ -1,0 +1,49 @@
+﻿@model StarEventSystem.Models.Event
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<h2>@Model.EventName</h2>
+<p>@Model.EventDescription</p>
+<p><strong>Start:</strong> @Model.StartDate.ToString("dd MMM yyyy")</p>
+<p><strong>End:</strong> @Model.EndDate.ToString("dd MMM yyyy")</p>
+
+@if (!string.IsNullOrEmpty(Model.ImagePath))
+{
+    <img src="@Model.ImagePath" alt="@Model.EventName" style="max-width:400px;" />
+}
+
+<h3>Available Ticket Types</h3>
+
+<form asp-controller="Orders" asp-action="Checkout" method="post">
+    <input type="hidden" name="EventId" value="@Model.EventId" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Available Seats</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in Model.TicketTypes)
+            {
+                <tr>
+                    <td>@ticket.TypeName</td>
+                    <td>@ticket.Price.ToString("C")</td>
+                    <td>@ticket.Seats</td>
+                    <td>
+                        <input type="number" name="Quantities[@ticket.TicketTypeId]" min="0" max="@ticket.Seats" value="0" class="form-control" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Book Now</button>
+</form>
+
+<a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Events</a>

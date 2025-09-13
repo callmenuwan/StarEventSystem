@@ -14,6 +14,7 @@ namespace StarEventSystem.Data
         {
         }
 
-        public DbSet<StarEventSystem.Models.Event> Event { get; set; } = default!;
+        public DbSet<Event> Event { get; set; } = default!;
+        public DbSet<TicketType> TicketTypes { get; set; } = default!;
     }
 }

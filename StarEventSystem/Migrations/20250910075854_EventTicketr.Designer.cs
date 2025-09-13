@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StarEventSystem.Data;
 
@@ -11,9 +12,11 @@ using StarEventSystem.Data;
 namespace StarEventSystem.Migrations
 {
     [DbContext(typeof(StarEventSystemContext))]
-    partial class StarEventSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250910075854_EventTicketr")]
+    partial class EventTicketr
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,17 +100,12 @@ namespace StarEventSystem.Migrations
             modelBuilder.Entity("StarEventSystem.Models.TicketType", b =>
                 {
                     b.HasOne("StarEventSystem.Models.Event", "Event")
-                        .WithMany("TicketTypes")
+                        .WithMany()
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Event");
-                });
-
-            modelBuilder.Entity("StarEventSystem.Models.Event", b =>
-                {
-                    b.Navigation("TicketTypes");
                 });
 #pragma warning restore 612, 618
         }

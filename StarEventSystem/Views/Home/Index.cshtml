@@ -1,8 +1,30 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<StarEventSystem.Models.Event>
+
+@{
+    ViewData["Title"] = "Events";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>Upcoming Events</h2>
+<hr />
+
+<div class="row">
+    @foreach (var e in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <img src="@e.ImagePath" class="card-img-top" alt="@e.EventName" style="height:200px; object-fit:cover;" />
+                <div class="card-body">
+                    <h5 class="card-title">@e.EventName</h5>
+                    <p class="card-text text-muted">@e.EventDescription</p>
+                    <p>
+                        <strong>@e.StartDate.ToShortDateString()</strong> -
+                        <strong>@e.EndDate.ToShortDateString()</strong>
+                    </p>
+                    <a asp-controller="Events" asp-action="Details" asp-route-id="@e.EventId" class="btn btn-primary">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
 </div>

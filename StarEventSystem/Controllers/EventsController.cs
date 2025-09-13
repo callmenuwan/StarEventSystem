@@ -36,7 +36,9 @@ namespace StarEventSystem.Controllers
             }
 
             var @event = await _context.Event
+                .Include(e => e.TicketTypes) // ✅ Correct Include
                 .FirstOrDefaultAsync(m => m.EventId == id);
+
             if (@event == null)
             {
                 return NotFound();
@@ -60,27 +62,29 @@ namespace StarEventSystem.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Handle image upload
                 if (ImageFile != null && ImageFile.Length > 0)
                 {
-                    // Generate unique file name
                     string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    string uniqueFileName = Guid.NewGuid() + "_" + ImageFile.FileName;
                     string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                    // Save file
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await ImageFile.CopyToAsync(fileStream);
                     }
 
-                    // Save path to database
                     @event.ImagePath = "/images/" + uniqueFileName;
                 }
 
                 _context.Add(@event);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { id = @event.EventId });
             }
+
             return View(@event);
         }
 

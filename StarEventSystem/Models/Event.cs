@@ -27,17 +27,14 @@ namespace StarEventSystem.Models
         [Required]
         public string Location { get; set; } = string.Empty;
 
-        [Required]
-        public decimal TicketPrice { get; set; }
-
-        public int TotalSeats { get; set; }
-        public int AvailableSeats { get; set; }
-
         // Temporary until Identity Roles come
         public int OrganizerId { get; set; }
 
         // store image file name/path
         public string? ImagePath { get; set; }
+
+        // Navigation property
+        public ICollection<TicketType> TicketTypes { get; set; } = new List<TicketType>();
 
     }
 }
