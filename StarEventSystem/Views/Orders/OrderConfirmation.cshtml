@@ -1,0 +1,35 @@
+﻿@model StarEventSystem.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<h2>Thank you, @Model.Customer.Name!</h2>
+<p>Your order has been successfully placed for <strong>@Model.Event.EventName</strong>.</p>
+
+<h4>Order Details</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ticket Type</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>@item.TicketType.TypeName</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price.ToString("C")</td>
+                <td>@(item.Price* item.Quantity).ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>Total Amount: @Model.TotalAmount.ToString("C")</h4>
+
+<p>We have sent a confirmation email to <strong>@Model.Customer.Email</strong>.</p>
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Events</a>

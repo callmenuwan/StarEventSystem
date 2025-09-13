@@ -1,4 +1,5 @@
-﻿@{
+﻿@model dynamic
+@{
     ViewData["Title"] = "Checkout";
     var eventDetails = ViewBag.Event as StarEventSystem.Models.Event;
     var selectedTickets = ViewBag.SelectedTickets as IEnumerable<dynamic>;
@@ -7,43 +8,50 @@
 
 <h2>Checkout - @eventDetails.EventName</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Ticket Type</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var ticket in selectedTickets)
-        {
-            <tr>
-                <td>@ticket.TicketType.TypeName</td>
-                <td>@ticket.Quantity</td>
-                <td>@ticket.TicketType.Price.ToString("C")</td>
-                <td>@ticket.Subtotal.ToString("C")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<h3>Total: @total.ToString("C")</h3>
-
-<h4>Enter Your Details</h4>
-<form method="post" asp-action="PlaceOrder">
+<form asp-action="PlaceOrder" method="post">
     <input type="hidden" name="EventId" value="@eventDetails.EventId" />
     <input type="hidden" name="TotalAmount" value="@total" />
 
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Ticket Type</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in selectedTickets)
+            {
+                <tr>
+                    <td>@ticket.TicketType.TypeName</td>
+                    <td>
+                        <input type="hidden" name="Quantities[@ticket.TicketType.TicketTypeId]" value="@ticket.Quantity" />
+                        @ticket.Quantity
+                    </td>
+                    <td>@ticket.TicketType.Price.ToString("C")</td>
+                    <td>@ticket.Subtotal.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Total: @total.ToString("C")</h3>
+
+    <h4>Enter Your Details</h4>
     <div class="form-group">
         <label>Name</label>
         <input name="CustomerName" class="form-control" required />
     </div>
     <div class="form-group">
         <label>Email</label>
-        <input name="CustomerEmail" class="form-control" type="email" required />
+        <input name="CustomerEmail" type="email" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Phone</label>
+        <input name="CustomerPhone" class="form-control" required />
     </div>
 
-    <button type="submit" class="btn btn-success">Place Order</button>
+    <button type="submit" class="btn btn-success mt-2">Place Order</button>
 </form>

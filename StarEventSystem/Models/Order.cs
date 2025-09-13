@@ -3,10 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StarEventSystem.Models
 {
-    public class TicketType
+    public class Order
     {
         [Key]
-        public int TicketTypeId { get; set; }
+        public int OrderId { get; set; }
+
+        [Required]
+        public int CustomerId { get; set; }
+
+        [ForeignKey("CustomerId")]
+        public Customer Customer { get; set; } = null!;
 
         [Required]
         public int EventId { get; set; }
@@ -14,14 +20,10 @@ namespace StarEventSystem.Models
         [ForeignKey("EventId")]
         public Event Event { get; set; } = null!;
 
-        [Required, StringLength(100)]
-        public string TypeName { get; set; } = string.Empty;
-
         [Required]
-        public decimal Price { get; set; }
+        public decimal TotalAmount { get; set; }
 
-        [Required]
-        public int Seats { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }

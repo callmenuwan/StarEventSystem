@@ -7,12 +7,10 @@ namespace StarEventSystem.Models
         [Key]
         public int EventId { get; set; }
 
-        [Required]
-        [StringLength(200)]
+        [Required, StringLength(200)]
         public string EventName { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(1000)]
+        [Required, StringLength(1000)]
         public string EventDescription { get; set; } = string.Empty;
 
         [Required]
@@ -27,14 +25,11 @@ namespace StarEventSystem.Models
         [Required]
         public string Location { get; set; } = string.Empty;
 
-        // Temporary until Identity Roles come
         public int OrganizerId { get; set; }
 
-        // store image file name/path
         public string? ImagePath { get; set; }
 
-        // Navigation property
         public ICollection<TicketType> TicketTypes { get; set; } = new List<TicketType>();
-
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
