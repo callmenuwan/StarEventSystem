@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StarEventSystem.Data;
 
@@ -11,9 +12,11 @@ using StarEventSystem.Data;
 namespace StarEventSystem.Migrations
 {
     [DbContext(typeof(StarEventSystemContext))]
-    partial class StarEventSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250913191213_NewtableAd")]
+    partial class NewtableAd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,9 +52,6 @@ namespace StarEventSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
 
                     b.HasKey("CustomerId");
 

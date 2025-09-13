@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using QRCoder;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StarEventSystem.Data;
 using StarEventSystem.Models;
@@ -15,7 +19,6 @@ namespace StarEventSystem.Controllers
         }
 
         // POST: Orders/Checkout
-        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> PlaceOrder(int EventId, decimal TotalAmount, string CustomerName, string CustomerEmail, string CustomerPhone, Dictionary<int, int> Quantities)
         {
@@ -64,8 +67,22 @@ namespace StarEventSystem.Controllers
                 }
             }
 
+            // 3️⃣ Save order items first
             await _context.SaveChangesAsync();
 
+            // 4️⃣ Generate QR Code (Base64)
+            string qrText = $"OrderId:{order.OrderId};Customer:{customer.Name};Event:{order.EventId}";
+            var qrGenerator = new QRCodeGenerator();
+            var qrData = qrGenerator.CreateQrCode(qrText, QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new PngByteQRCode(qrData);
+            byte[] qrBytes = qrCode.GetGraphic(10); // smaller size
+            order.QrCodeBase64 = Convert.ToBase64String(qrBytes);
+
+            // 5️⃣ Attach and mark only QrCodeBase64 as modified
+            _context.Entry(order).Property(o => o.QrCodeBase64).IsModified = true;
+            await _context.SaveChangesAsync();
+
+            // 6️⃣ Redirect
             return Json(new { success = true, orderId = order.OrderId });
         }
 

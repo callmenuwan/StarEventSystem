@@ -2,11 +2,45 @@
 
 @{
     ViewData["Title"] = "Events";
+    var eventTypes = ViewData["EventTypes"] as List<string>; // comes from controller
 }
 
 <h2>Upcoming Events</h2>
 <hr />
+<!-- Search + Filter Form -->
+<form method="get" asp-action="Index" asp-controller="Home" class="row g-3 mb-4">
+    <!-- Event Type Dropdown -->
+    <div class="col-md-3">
+        <select name="type" class="form-select">
+            @foreach (var t in eventTypes)
+            {
+                <option value="@t" selected="@(ViewData["CurrentType"]?.ToString() == t)">
+                    @t
+                </option>
+            }
+        </select>
+    </div>
 
+    <!-- Location Input -->
+    <div class="col-md-3">
+        <input type="text" name="location" value="@ViewData["CurrentLocation"]" class="form-control" placeholder="Location" />
+    </div>
+
+    <!-- Start Date -->
+    <div class="col-md-2">
+        <input type="date" name="startDate" value="@ViewData["CurrentStartDate"]" class="form-control" />
+    </div>
+
+    <!-- End Date -->
+    <div class="col-md-2">
+        <input type="date" name="endDate" value="@ViewData["CurrentEndDate"]" class="form-control" />
+    </div>
+
+    <!-- Submit Button -->
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+    </div>
+</form>
 <div class="row">
     @foreach (var e in Model)
     {
@@ -20,7 +54,7 @@
                         <strong>@e.StartDate.ToShortDateString()</strong> -
                         <strong>@e.EndDate.ToShortDateString()</strong>
                     </p>
-                    <a asp-controller="Events" asp-action="Details" asp-route-id="@e.EventId" class="btn btn-primary">
+                    <a asp-controller="Home" asp-action="Details" asp-route-id="@e.EventId" class="btn btn-primary">
                         View Details
                     </a>
                 </div>

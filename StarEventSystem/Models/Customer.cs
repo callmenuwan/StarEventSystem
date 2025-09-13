@@ -19,6 +19,8 @@ namespace StarEventSystem.Models
         [Required, StringLength(200)]
         public string PasswordHash { get; set; } = string.Empty;
 
+        public int Points { get; set; } = 0;  // ✅ new column for loyalty points
+
         public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

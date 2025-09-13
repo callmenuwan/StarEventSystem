@@ -18,10 +18,51 @@ namespace StarEventSystem.Controllers
         }
 
         // GET: /
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string type, string location, DateTime? startDate, DateTime? endDate)
         {
-            var eventsList = await _context.Event.ToListAsync();
-            return View(eventsList); // ✅ pass events to the view
+            var events = _context.Event.AsQueryable(); // 👈 use Event, not Events
+
+            // Filter by type
+            if (!string.IsNullOrEmpty(type))
+            {
+                events = events.Where(e => e.EventType == type);
+            }
+
+            // Filter by location
+            if (!string.IsNullOrEmpty(location))
+            {
+                events = events.Where(e => e.Location.Contains(location));
+            }
+
+            // Filter by date range (overlap check)
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                events = events.Where(e => e.StartDate <= endDate && e.EndDate >= startDate);
+            }
+            else if (startDate.HasValue)
+            {
+                events = events.Where(e => e.EndDate >= startDate);
+            }
+            else if (endDate.HasValue)
+            {
+                events = events.Where(e => e.StartDate <= endDate);
+            }
+
+            // Populate event type dropdown
+            var eventTypes = await _context.Event
+                .Select(e => e.EventType)
+                .Distinct()
+                .ToListAsync();
+
+            ViewData["EventTypes"] = eventTypes;
+
+            // Keep current filter values
+            ViewData["CurrentType"] = type;
+            ViewData["CurrentLocation"] = location;
+            ViewData["CurrentStartDate"] = startDate?.ToString("yyyy-MM-dd");
+            ViewData["CurrentEndDate"] = endDate?.ToString("yyyy-MM-dd");
+
+            return View(await events.ToListAsync());
         }
 
         public IActionResult Privacy()

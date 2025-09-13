@@ -20,6 +20,8 @@ namespace StarEventSystem.Models
         [ForeignKey("EventId")]
         public Event Event { get; set; } = null!;
 
+        public string? QrCodeBase64 { get; set; }
+
         [Required]
         public decimal TotalAmount { get; set; }
 
