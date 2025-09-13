@@ -16,12 +16,12 @@ namespace StarEventSystem.Controllers
 
         // POST: Orders/Checkout
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> PlaceOrder(int EventId, decimal TotalAmount, string CustomerName, string CustomerEmail, string CustomerPhone, Dictionary<int, int> Quantities)
         {
             if (!Quantities.Any(q => q.Value > 0))
             {
-                TempData["Error"] = "Select at least one ticket.";
-                return RedirectToAction("Details", "Home", new { id = EventId });
+                return Json(new { success = false, message = "Select at least one ticket." });
             }
 
             // Create Customer
@@ -44,7 +44,7 @@ namespace StarEventSystem.Controllers
             _context.Add(order);
             await _context.SaveChangesAsync();
 
-            // Add OrderItems
+            // Create OrderItems
             foreach (var q in Quantities.Where(x => x.Value > 0))
             {
                 var ticket = await _context.TicketTypes.FindAsync(q.Key);
@@ -58,12 +58,15 @@ namespace StarEventSystem.Controllers
                         Price = ticket.Price
                     };
                     _context.Add(orderItem);
+
+                    // Optional: reduce available seats
+                    ticket.Seats -= q.Value;
                 }
             }
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("OrderConfirmation", new { orderId = order.OrderId });
+            return Json(new { success = true, orderId = order.OrderId });
         }
 
         [HttpPost]
