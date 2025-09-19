@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StarEventSystem.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace StarEventSystem.Data
 {
-    public class StarEventSystemContext : DbContext
+    public class StarEventSystemContext : IdentityDbContext
     {
         public StarEventSystemContext(DbContextOptions<StarEventSystemContext> options)
             : base(options)

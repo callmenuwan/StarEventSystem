@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StarEventSystem.Data;
 using StarEventSystem.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace StarEventSystem.Controllers
 {
+    [Authorize]
     public class EventsController : Controller
     {
         private readonly StarEventSystemContext _context;
@@ -22,12 +24,15 @@ namespace StarEventSystem.Controllers
         }
 
         // GET: Events
+        
         public async Task<IActionResult> Index()
         {
             return View(await _context.Event.ToListAsync());
         }
 
+
         // GET: Events/Details/5
+       
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

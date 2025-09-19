@@ -1,11 +1,12 @@
-﻿using QRCoder;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QRCoder;
+using StarEventSystem.Data;
+using StarEventSystem.Models;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StarEventSystem.Data;
-using StarEventSystem.Models;
 
 namespace StarEventSystem.Controllers
 {
@@ -32,7 +33,8 @@ namespace StarEventSystem.Controllers
             {
                 Name = CustomerName,
                 Email = CustomerEmail,
-                Phone = CustomerPhone
+                Phone = CustomerPhone,
+                Points = 50, // Initial points for new customer
             };
             _context.Add(customer);
             await _context.SaveChangesAsync();
@@ -85,7 +87,7 @@ namespace StarEventSystem.Controllers
             // 6️⃣ Redirect
             return Json(new { success = true, orderId = order.OrderId });
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Checkout(int EventId, Dictionary<int, int> Quantities)
         {
