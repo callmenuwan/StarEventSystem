@@ -36,14 +36,33 @@
                     <td>@ticket.Price.ToString("C")</td>
                     <td>@ticket.Seats</td>
                     <td>
-                        <input type="number" name="Quantities[@ticket.TicketTypeId]" min="0" max="@ticket.Seats" value="0" class="form-control" />
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <input type="number" name="Quantities[@ticket.TicketTypeId]" min="0" max="@ticket.Seats" value="0" class="form-control" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Login to book</span>
+                        }
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 
-    <button type="submit" class="btn btn-primary">Book Now</button>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <form asp-controller="Orders" asp-action="Checkout" method="post">
+            <input type="hidden" name="EventId" value="@Model.EventId" />
+            <button type="submit" class="btn btn-primary">Book Now</button>
+        </form>
+    }
+    else
+    {
+        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Home", new { id = Model.EventId })" class="btn btn-primary">
+            Book Now
+        </a>
+    }
 </form>
 
 <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Events</a>

@@ -7,45 +7,42 @@ using StarEventSystem.Models;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using Microsoft.AspNetCore.Identity;
 
 namespace StarEventSystem.Controllers
 {
     public class OrdersController : Controller
     {
         private readonly StarEventSystemContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public OrdersController(StarEventSystemContext context)
+        public OrdersController(StarEventSystemContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // POST: Orders/Checkout
         [HttpPost]
-        public async Task<IActionResult> PlaceOrder(int EventId, decimal TotalAmount, string CustomerName, string CustomerEmail, string CustomerPhone, Dictionary<int, int> Quantities)
+        public async Task<IActionResult> PlaceOrder(int EventId, decimal TotalAmount, Dictionary<int, int> Quantities, int RedeemedPoints = 0)
         {
             if (!Quantities.Any(q => q.Value > 0))
             {
                 return Json(new { success = false, message = "Select at least one ticket." });
             }
 
-            // Create Customer
-            var customer = new Customer
-            {
-                Name = CustomerName,
-                Email = CustomerEmail,
-                Phone = CustomerPhone,
-                Points = 50, // Initial points for new customer
-            };
-            _context.Add(customer);
-            await _context.SaveChangesAsync();
-
+            // ✅ Get current logged-in user
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null) return Unauthorized();
+            
             // Create Order
             var order = new Order
             {
                 EventId = EventId,
-                CustomerId = customer.CustomerId,
+                UserId = userId,
                 TotalAmount = TotalAmount
             };
+
             _context.Add(order);
             await _context.SaveChangesAsync();
 
@@ -73,7 +70,7 @@ namespace StarEventSystem.Controllers
             await _context.SaveChangesAsync();
 
             // 4️⃣ Generate QR Code (Base64)
-            string qrText = $"OrderId:{order.OrderId};Customer:{customer.Name};Event:{order.EventId}";
+            string qrText = $"OrderId:{order.OrderId};User:{userId};Event:{order.EventId}";
             var qrGenerator = new QRCodeGenerator();
             var qrData = qrGenerator.CreateQrCode(qrText, QRCodeGenerator.ECCLevel.Q);
             var qrCode = new PngByteQRCode(qrData);
@@ -83,6 +80,20 @@ namespace StarEventSystem.Controllers
             // 5️⃣ Attach and mark only QrCodeBase64 as modified
             _context.Entry(order).Property(o => o.QrCodeBase64).IsModified = true;
             await _context.SaveChangesAsync();
+
+            // After saving the order and generating QR
+            var user = await _userManager.GetUserAsync(User);
+
+            // Ensure redeemed points do not exceed available points
+            if (RedeemedPoints > user.Points) RedeemedPoints = user.Points;
+
+            if (user != null)
+            {
+                user.Points -= RedeemedPoints; // Deduct redeemed points
+                user.Points += 20; //  add reward points
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+            }
 
             // 6️⃣ Redirect
             return Json(new { success = true, orderId = order.OrderId });
@@ -125,7 +136,7 @@ namespace StarEventSystem.Controllers
         public async Task<IActionResult> OrderConfirmation(int orderId)
         {
             var order = await _context.Orders
-                .Include(o => o.Customer)
+                .Include(o => o.User) // ✅ load ApplicationUser
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.TicketType)
                 .Include(o => o.Event)

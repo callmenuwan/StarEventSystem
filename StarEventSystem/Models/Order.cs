@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using StarEventSystem.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StarEventSystem.Models
@@ -9,10 +10,10 @@ namespace StarEventSystem.Models
         public int OrderId { get; set; }
 
         [Required]
-        public int CustomerId { get; set; }
+        public string? UserId { get; set; }
 
-        [ForeignKey("CustomerId")]
-        public Customer Customer { get; set; } = null!;
+        [ForeignKey("string")]
+        public ApplicationUser User { get; set; } = null!;
 
         [Required]
         public int EventId { get; set; }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace StarEventSystem.Data
 {
-    public class StarEventSystemContext : IdentityDbContext
+    public class StarEventSystemContext : IdentityDbContext<ApplicationUser>
     {
         public StarEventSystemContext(DbContextOptions<StarEventSystemContext> options)
             : base(options)
@@ -13,7 +13,6 @@ namespace StarEventSystem.Data
 
         public DbSet<Event> Event { get; set; } = default!;
         public DbSet<TicketType> TicketTypes { get; set; } = default!;
-        public DbSet<Customer> Customers { get; set; } = default!;
         public DbSet<Order> Orders { get; set; } = default!;
         public DbSet<OrderItem> OrderItems { get; set; } = default!;
 
@@ -33,13 +32,6 @@ namespace StarEventSystem.Data
                 .HasOne(o => o.Event)
                 .WithMany(e => e.Orders)
                 .HasForeignKey(o => o.EventId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Order -> Customer
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Customer)
-                .WithMany(c => c.Orders)
-                .HasForeignKey(o => o.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // OrderItem -> Order

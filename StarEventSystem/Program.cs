@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using StarEventSystem.Models;
 using StarEventSystem.Data;
-using Microsoft.AspNetCore.Identity;
+
 namespace StarEventSystem
 {
     public class Program
@@ -12,7 +14,7 @@ namespace StarEventSystem
             builder.Services.AddDbContext<StarEventSystemContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("StarEventSystemContext") ?? throw new InvalidOperationException("Connection string 'StarEventSystemContext' not found.")));
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<StarEventSystemContext>();
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<StarEventSystemContext>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();

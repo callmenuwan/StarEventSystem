@@ -1,7 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using StarEventSystem.Models
 
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+}
+@if (currentUser != null)
+{
+    <span>Points: @currentUser.Points</span>
+}
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
