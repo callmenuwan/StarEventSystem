@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Register Organizer";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+@if (ViewBag.Success != null)
+{
+    <div class="alert alert-success">@ViewBag.Success</div>
+}
+<main role="main" class="pb-3">
+    <h2>Register Organizer</h2>
+    <br />
+<form asp-action="RegisterOrganizer" method="post" class="col-md-6">
+    <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input name="fullName" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register Organizer</button>
+</form>
+
+</main>

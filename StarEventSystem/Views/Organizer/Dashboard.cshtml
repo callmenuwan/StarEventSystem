@@ -1,0 +1,136 @@
+﻿@model IEnumerable<StarEventSystem.Models.OrganizerEventReportViewModel>
+
+@{
+    ViewData["Title"] = "Organizer Dashboard";
+}
+
+<h2>Event Sales & Revenue Report</h2>
+<br />
+
+<form method="get" asp-action="Dashboard" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label>Start Date</label>
+        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+    </div>
+    <div class="col-md-3">
+        <label>End Date</label>
+        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+    </div>
+    <div class="col-md-3 align-self-end">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="@Url.Action("Dashboard", "Organizer")" class="btn btn-secondary">Reset</a>
+    </div>
+    <div class="col-md-3 align-self-end text-end">
+        <a href="@Url.Action("ExportCsv", new { startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })"
+           class="btn btn-success">Download CSV</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info mt-3">No events found for the selected period.</div>
+}
+else
+{
+    <br />
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Event Name</th>
+                <th>Tickets Sold</th>
+                <th>Total Revenue (GBP)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in Model)
+            {
+                <tr>
+                    <td>@ev.EventName</td>
+                    <td>@ev.TotalTicketsSold</td>
+                    <td>@ev.TotalRevenue.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <br />
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h3 class="text-center">Revenue by Event</h3>
+            <canvas id="revenueChart" height="150"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h3 class="text-center">Tickets Sold by Event</h3>
+            <canvas id="ticketsChart" height="150"></canvas>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const eventLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.EventName)));
+        const totalRevenue = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.TotalRevenue)));
+        const totalTickets = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.TotalTicketsSold)));
+
+        // 🎟️ Tickets Sold Chart
+        const ticketsCtx = document.getElementById('ticketsChart').getContext('2d');
+        new Chart(ticketsCtx, {
+            type: 'bar',
+            data: {
+                labels: eventLabels,
+                datasets: [{
+                    label: 'Tickets Sold',
+                    data: totalTickets,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Tickets Sold' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Events / Date Range' }
+                    }
+                }
+            }
+        });
+
+        // 💰 Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: eventLabels,
+                datasets: [{
+                    label: 'Revenue (USD)',
+                    data: totalRevenue,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.3)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Revenue (USD)' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Events / Date Range' }
+                    }
+                }
+            }
+        });
+    </script>
+}

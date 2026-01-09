@@ -1,0 +1,92 @@
+﻿@model StarEventSystem.Models.ApplicationUser
+@{
+    ViewData["Title"] = "User Dashboard";
+    var orders = ViewBag.Orders as List<StarEventSystem.Models.Order>;
+}
+
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Welcome, @Model.FullName!</h2>
+        <p>Email: @Model.Email</p>
+    </div>
+    <div class="col-md-6">
+        
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Total Orders</div>
+            <div class="card-body">
+                <h5 class="card-title">@ViewBag.TotalOrders</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Total Spent</div>
+            <div class="card-body">
+                <h5 class="card-title">@ViewBag.TotalSpent.ToString("C")</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-header">Loyalty Point</div>
+            <div class="card-body">
+                <h5 class="card-title">@Model.Points</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<hr />
+<h3>My Orders</h3>
+
+@if (orders == null || !orders.Any())
+{
+    <div class="alert alert-info">You have no orders yet.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Tickets</th>
+                <th>Total Amount</th>
+                <th>Date</th>
+                <th>QR Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Event.EventName</td>
+                    <td>
+                        @foreach (var item in order.OrderItems)
+                        {
+                            <div>@item.TicketType.TypeName x @item.Quantity</div>
+                        }
+                    </td>
+                    <td>@order.TotalAmount.ToString("C")</td>
+                    <td>@order.CreatedAt.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(order.QrCodeBase64))
+                        {
+                            <img src="data:image/png;base64,@order.QrCodeBase64" width="100" />
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a href="@Url.Action("ExportOrdersCsv", "User")" class="btn btn-success">Download CSV</a>
+}
+
+<a href="@Url.Action("Profile", "User")" class="btn btn-secondary">Edit Profile</a>

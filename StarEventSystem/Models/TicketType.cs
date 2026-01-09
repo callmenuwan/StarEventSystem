@@ -12,7 +12,7 @@ namespace StarEventSystem.Models
         public int EventId { get; set; }
 
         [ForeignKey("EventId")]
-        public Event Event { get; set; } = null!;
+        public Event? Event { get; set; } = null!;
 
         [Required, StringLength(100)]
         public string TypeName { get; set; } = string.Empty;

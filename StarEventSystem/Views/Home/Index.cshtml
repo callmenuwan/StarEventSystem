@@ -5,8 +5,19 @@
     var eventTypes = ViewData["EventTypes"] as List<string>; // comes from controller
 }
 
+<div class="row">
+    <div class="col-md-12">
+        <div class="events-slider">
+            <div><img src="~/images/slide2.jpg"></div>
+            <div><img src="~/images/slide3.jpg"></div>
+            <div><img src="~/images/slide4.jpg"></div>
+            <div><img src="~/images/slide3.jpg"></div>
+        </div>
+    </div>
+</div>
+
+<main role="main" class="pb-3">
 <h2>Upcoming Events</h2>
-<hr />
 <!-- Search + Filter Form -->
 <form method="get" asp-action="Index" asp-controller="Home" class="row g-3 mb-4">
     <!-- Event Type Dropdown -->
@@ -46,7 +57,7 @@
     {
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm">
-                <img src="@e.ImagePath" class="card-img-top" alt="@e.EventName" style="height:200px; object-fit:cover;" />
+                <img src="@e.ImagePath" class="card-img-top" alt="@e.EventName" style="height:260px; object-fit:cover;" />
                 <div class="card-body">
                     <h5 class="card-title">@e.EventName</h5>
                     <p class="card-text text-muted">@e.EventDescription</p>
@@ -62,3 +73,4 @@
         </div>
     }
 </div>
+</main>

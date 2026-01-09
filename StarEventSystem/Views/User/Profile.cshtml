@@ -1,0 +1,31 @@
+﻿@model StarEventSystem.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<h2>Edit Profile</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="Profile" method="post">
+    <div class="mb-3">
+        <label>Full Name</label>
+        <input type="text" name="fullName" class="form-control" value="@Model.FullName" />
+    </div>
+    <div class="mb-3">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" value="@Model.Email" />
+    </div>
+    <div class="mb-3">
+        <label>New Password (leave blank to keep current)</label>
+        <input type="password" name="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Update Profile</button>
+</form>

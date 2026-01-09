@@ -4,65 +4,74 @@
     ViewData["Title"] = "Event Details";
 }
 
-<h2>@Model.EventName</h2>
-<p>@Model.EventDescription</p>
-<p><strong>Start:</strong> @Model.StartDate.ToString("dd MMM yyyy")</p>
-<p><strong>End:</strong> @Model.EndDate.ToString("dd MMM yyyy")</p>
+<main role="main" class="pb-3">
+<div class="row">
+    <div class="col-md-5">
+        <h2>@Model.EventName</h2>
+        <p>@Model.EventDescription</p>
 
-@if (!string.IsNullOrEmpty(Model.ImagePath))
-{
-    <img src="@Model.ImagePath" alt="@Model.EventName" style="max-width:400px;" />
-}
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="@Model.ImagePath" alt="@Model.EventName" style="max-width:400px;" />
+        }
+    </div>
+    <div class="col-md-7">
+        <p><strong>Start:</strong> @Model.StartDate.ToString("dd MMM yyyy")</p>
+        <p><strong>End:</strong> @Model.EndDate.ToString("dd MMM yyyy")</p>
+		<hr />
 
-<h3>Available Ticket Types</h3>
+        <h3>Available Ticket Types</h3>
 
-<form asp-controller="Orders" asp-action="Checkout" method="post">
-    <input type="hidden" name="EventId" value="@Model.EventId" />
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Type</th>
-                <th>Price</th>
-                <th>Available Seats</th>
-                <th>Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ticket in Model.TicketTypes)
-            {
-                <tr>
-                    <td>@ticket.TypeName</td>
-                    <td>@ticket.Price.ToString("C")</td>
-                    <td>@ticket.Seats</td>
-                    <td>
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <input type="number" name="Quantities[@ticket.TicketTypeId]" min="0" max="@ticket.Seats" value="0" class="form-control" />
-                        }
-                        else
-                        {
-                            <span class="text-muted">Login to book</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    @if (User.Identity.IsAuthenticated)
-    {
         <form asp-controller="Orders" asp-action="Checkout" method="post">
             <input type="hidden" name="EventId" value="@Model.EventId" />
-            <button type="submit" class="btn btn-primary">Book Now</button>
-        </form>
-    }
-    else
-    {
-        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Home", new { id = Model.EventId })" class="btn btn-primary">
-            Book Now
-        </a>
-    }
-</form>
 
-<a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Events</a>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Available Seats</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model.TicketTypes)
+                    {
+                        <tr>
+                            <td>@ticket.TypeName</td>
+                            <td>@ticket.Price.ToString("C")</td>
+                            <td>@ticket.Seats</td>
+                            <td>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <input type="number" name="Quantities[@ticket.TicketTypeId]" min="0" max="@ticket.Seats" value="0" class="form-control" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Login to book</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <form asp-controller="Orders" asp-action="Checkout" method="post">
+                    <input type="hidden" name="EventId" value="@Model.EventId" />
+                    <button type="submit" class="btn btn-primary">Book Now</button>
+                </form>
+            }
+            else
+            {
+                <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Home", new { id = Model.EventId })" class="btn btn-primary">
+                    Book Now
+                </a>
+            }
+        </form>
+
+        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Events</a>
+    </div>
+</div>
+</main>

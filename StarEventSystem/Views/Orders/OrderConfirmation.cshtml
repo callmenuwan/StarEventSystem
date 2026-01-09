@@ -2,39 +2,49 @@
 @{
     ViewData["Title"] = "Order Confirmation";
 }
+<main role="main" class="pb-3">
+<div class="row">
+    <div class="col-md-6">
+        <h2>Thank you</h2>
+        <p>Your order has been successfully placed for <strong>@Model.Event.EventName</strong>.</p>
 
-<h2>Thank you</h2>
-<p>Your order has been successfully placed for <strong>@Model.Event.EventName</strong>.</p>
+        <h3>Order Details</h3>
+        <hr />
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Ticket Type</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>@item.TicketType.TypeName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("C")</td>
+                        <td>@Model.TotalAmount.ToString()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <h4>Total Amount: @Model.TotalAmount.ToString()</h4>
+		<hr />
 
-<h4>Order Details</h4>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Ticket Type</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.OrderItems)
+        <h3>QR Code</h3>
+        <p>Please validate your QR code, when you will at the event entrance.</p>
+        @if (!string.IsNullOrEmpty(Model.QrCodeBase64))
         {
-            <tr>
-                <td>@item.TicketType.TypeName</td>
-                <td>@item.Quantity</td>
-                <td>@item.Price.ToString("C")</td>
-                <td>@Model.TotalAmount.ToString()</td>
-            </tr>
+            <img src="data:image/png;base64,@Model.QrCodeBase64" alt="Order QR Code" />
         }
-    </tbody>
-</table>
 
-<h4>Total Amount: @Model.TotalAmount.ToString()</h4>
-<h3>QR Code</h3>
-@if (!string.IsNullOrEmpty(Model.QrCodeBase64))
-{
-    <img src="data:image/png;base64,@Model.QrCodeBase64" alt="Order QR Code" />
-}
-
-<p>We have sent a confirmation email.</p>
-<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Events</a>
+        <p>We have sent a confirmation email.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Events</a>
+    </div>
+</div>
+</main>

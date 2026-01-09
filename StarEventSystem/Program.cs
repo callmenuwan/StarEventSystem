@@ -4,11 +4,28 @@ using Microsoft.Extensions.DependencyInjection;
 using StarEventSystem.Models;
 using StarEventSystem.Data;
 
+public static class RoleSeeder
+{
+    public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+    {
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        string[] roleNames = { "Admin", "Organizer", "User" };
+
+        foreach (var roleName in roleNames)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+    }
+}
+
 namespace StarEventSystem
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<StarEventSystemContext>(options =>
@@ -42,6 +59,12 @@ namespace StarEventSystem
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                await RoleSeeder.SeedRolesAsync(services);
+            }
         }
     }
 }

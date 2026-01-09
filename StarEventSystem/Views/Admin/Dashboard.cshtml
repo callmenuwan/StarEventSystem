@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    var revenueByEvent = ViewBag.RevenueByEvent as IEnumerable<dynamic>;
+}
+<main role="main" class="pb-3">
+<h2>Admin System Reports</h2>
+    <br />
+
+<form method="get" asp-action="Dashboard" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label>Start Date</label>
+        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+    </div>
+    <div class="col-md-3">
+        <label>End Date</label>
+        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+    </div>
+    <div class="col-md-3 align-self-end">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="@Url.Action("Dashboard", "Admin")" class="btn btn-secondary">Reset</a>
+    </div>
+    <div class="col-md-3 align-self-end text-end">
+        <a href="@Url.Action("ExportCsv", "Admin", new { startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })"
+           class="btn btn-success">Download CSV</a>
+    </div>
+</form>
+
+<div class="row text-center mb-5">
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5>Total Revenue</h5>
+                <h3>$@ViewBag.TotalRevenue</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5>Total Tickets Sold</h5>
+                <h3>@ViewBag.TotalTickets</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5>Total Events</h5>
+                <h3>@ViewBag.TotalEvents</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5>Total Users</h5>
+                <h3>@ViewBag.TotalUsers</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <h3>System Reports</h3>
+    <br />
+    <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="event-tab" data-bs-toggle="tab" data-bs-target="#event" type="button" role="tab">Revenue by Event</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="organizer-tab" data-bs-toggle="tab" data-bs-target="#organizer" type="button" role="tab">Revenue by Organizer</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="month-tab" data-bs-toggle="tab" data-bs-target="#month" type="button" role="tab">Revenue by Month</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="location-tab" data-bs-toggle="tab" data-bs-target="#location" type="button" role="tab">Revenue by Location</button>
+        </li>
+    </ul>
+    <div class="tab-content mt-3" id="reportTabsContent">
+        <div class="tab-pane fade show active" id="event" role="tabpanel">
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="tab-pane fade" id="organizer" role="tabpanel">
+            <canvas id="revenueByOrganizer"></canvas>
+        </div>
+        <div class="tab-pane fade" id="month" role="tabpanel">
+            <canvas id="revenueByMonth"></canvas>
+        </div>
+        <div class="tab-pane fade" id="location" role="tabpanel">
+            <canvas id="revenueByLocation"></canvas>
+        </div>
+    </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(revenueByEvent.Select(r => r.EventName)));
+        const revenue = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(revenueByEvent.Select(r => r.Revenue)));
+
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                        label: 'Revenue (GBP)',
+                    data: revenue,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+            // --- Revenue by Organizer ---
+            new Chart(document.getElementById('revenueByOrganizer'), {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(ViewBag.RevenueByOrganizerLabels)),
+                    datasets: [{
+                            label: 'Revenue (GBP)',
+                        data: @Html.Raw(Json.Serialize(ViewBag.RevenueByOrganizerValues)),
+                        backgroundColor: '#1cc88a'
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+
+                // --- Revenue by Month ---
+            new Chart(document.getElementById('revenueByMonth'), {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(ViewBag.RevenueByMonthLabels)),
+                    datasets: [{
+                        label: 'Monthly Revenue (GBP)',
+                        data: @Html.Raw(Json.Serialize(ViewBag.RevenueByMonthValues)),
+                        borderColor: '#f6c23e',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+
+            // --- Revenue by Location ---
+            new Chart(document.getElementById('revenueByLocation'), {
+                type: 'pie',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(ViewBag.RevenueByLocationLabels)),
+                    datasets: [{
+                            label: 'Revenue (GBP)',
+                        data: @Html.Raw(Json.Serialize(ViewBag.RevenueByLocationValues)),
+                        backgroundColor: ['#36b9cc', '#f6c23e', '#4e73df', '#e74a3b']
+                    }]
+                },
+                options: { responsive: true }
+            });
+    </script>
+}
+</main>
