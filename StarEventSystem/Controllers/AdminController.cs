@@ -8,17 +8,81 @@ using System.Text;
 
 namespace StarEventSystem.Controllers
 {
-    [Authorize] // Only admin users can access [Authorize(Roles = "Admin")]
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly StarEventSystemContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AdminController(StarEventSystemContext context)
+        public AdminController(StarEventSystemContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        
+        // Show organizer registration form
+        [HttpGet]
+        public IActionResult RegisterOrganizer()
+        {
+            return View();
+        }
+
+        // Handle organizer registration
+        [HttpPost]
+        public async Task<IActionResult> RegisterOrganizer(string email, string password, string fullName)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            {
+                ViewBag.Error = "Email and password are required.";
+                return View();
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+            {
+                ViewBag.Error = "This email is already registered.";
+                return View();
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                FullName = fullName
+            };
+
+            var result = await _userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
+            {
+                if (!await _roleManager.RoleExistsAsync("Organizer"))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("Organizer"));
+                }
+
+                await _userManager.AddToRoleAsync(user, "Organizer");
+                ViewBag.Success = "Organizer registered successfully!";
+            }
+            else
+            {
+                ViewBag.Error = string.Join(", ", result.Errors.Select(e => e.Description));
+            }
+
+            return View();
+        }
+
+        // List all organizers
+        public IActionResult OrganizersList()
+        {
+            var organizers = _userManager.Users
+                .Where(u => _userManager.GetRolesAsync(u).Result.Contains("Organizer"))
+                .ToList();
+
+            return View(organizers);
+        }
+
 
         // Dashboard Summary
         public async Task<IActionResult> Dashboard(DateTime? startDate, DateTime? endDate)
@@ -118,5 +182,8 @@ namespace StarEventSystem.Controllers
 
             return File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", "AdminSystemReport.csv");
         }
+
+
+
     }
 }

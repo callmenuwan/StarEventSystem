@@ -17,6 +17,8 @@ namespace StarEventSystem.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Organizer")]
+
         // Dashboard (with optional date filters)
         public async Task<IActionResult> Dashboard(DateTime? startDate, DateTime? endDate)
         {
